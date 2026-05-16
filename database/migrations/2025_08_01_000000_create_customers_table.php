@@ -21,16 +21,16 @@ return new class () extends Migration {
             $table->string('floor')->nullable();
             $table->string('zipcode')->nullable();
             $table->string('city')->nullable();
-            $table->text('email')->nullable();
+            $table->string('email', 255)->nullable();
             $table->string('internal_comment')->nullable();
-            $table->boolean('blocked')->default(false);
             $table->string('phone')->nullable();
             $table->timestamps();
             $table->string('company')->nullable();
-            $table->string('staff_number')->nullable();
             $table->softDeletes();
-            $table->boolean('is_account')->default(false);
-            $table->string('password')->nullable();
+            $table->unsignedBigInteger('invoice_template')->nullable();
+            $table->json('custom_attributes')->nullable();
+
+            $table->unique(['tenant_id', 'email'], 'customers_tenant_email_unique');
         });
     }
 
