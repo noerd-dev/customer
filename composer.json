@@ -1,0 +1,27 @@
+{
+    "name": "noerd/customer",
+    "description": "Customer module for noerd platform",
+    "type": "library",
+	"version": "0.1.0",
+	"license": "proprietary",
+    "require": {
+        "noerd/noerd": "^0.6",
+        "owen-it/laravel-auditing": "^14.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Noerd\\Customer\\": "src/",
+            "Noerd\\Customer\\Tests\\": "tests/",
+            "Noerd\\Customer\\Database\\Factories\\": "database/factories/",
+            "Noerd\\Customer\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Noerd\\Customer\\Providers\\CustomerServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}

@@ -1,0 +1,21 @@
+title: Customers
+actions:
+  - label: New Customer
+    action: listAction
+disableSearch: false
+columns:
+  - field: name
+    label: Name
+    type: text
+  - field: company_name
+    label: Company
+  - field: email
+    label: Email
+  - field: phone
+    label: Phone
+  - field: address
+    label: Address
+  - field: zipcode
+    label: Zip Code
+  - field: city
+    label: City
