@@ -24,6 +24,8 @@ new class extends Component {
                 $this->detailData = $customer->toArray();
             }
         }
+
+        $this->setPreselect('customer_id', $this->modelId);
     }
 
     public function store(): void
