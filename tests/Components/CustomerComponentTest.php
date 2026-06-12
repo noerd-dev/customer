@@ -36,9 +36,11 @@ it('validates the data', function () use ($testSettings): void {
 
     $this->actingAs($user);
 
-    Livewire::test($testSettings['componentName'])
-        ->call('store')
-        ->assertHasErrors(['detailData.name']);
+    $component = Livewire::test($testSettings['componentName'])
+        ->set('detailData', [])
+        ->call('store');
+
+    $component->assertHasErrors(requiredLayoutFields($component));
 });
 
 it('successfully stores the data', function () use ($testSettings): void {
@@ -48,6 +50,7 @@ it('successfully stores the data', function () use ($testSettings): void {
     $customerName = fake()->word;
 
     Livewire::test($testSettings['componentName'])
+        ->set('detailData', validDetailPayload(Customer::class, ['tenant_id' => $user->selected_tenant_id]))
         ->set('detailData.name', $customerName)
         ->call('store')
         ->assertHasNoErrors();
