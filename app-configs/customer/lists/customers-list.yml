@@ -1,4 +1,5 @@
 title: Customers
+model: Noerd\Customer\Models\Customer
 actions:
   - label: New Customer
     action: listAction
