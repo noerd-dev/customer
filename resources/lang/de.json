@@ -32,5 +32,9 @@
     "Title": "Titel",
     "User": "Benutzer",
     "Zip Code": "PLZ",
-    "to": "bis"
+    "to": "bis",
+    "Choose customer": "Kunde auswählen",
+    "Change customer": "Kunde wechseln",
+    "Open customer": "Kunde öffnen",
+    "Clear customer": "Kunde entfernen"
 }
