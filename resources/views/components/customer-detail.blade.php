@@ -70,6 +70,8 @@ new class extends Component {
         <x-noerd::modal-title>Kunde</x-noerd::modal-title>
     </x-slot:header>
 
+    <x-noerd::detail-actions :layout="$pageLayout" :modelId="$modelId" />
+
     <x-noerd::tab-content :layout="$pageLayout" :modelId="$modelId">
         <x-slot:tab1>
         </x-slot:tab1>
