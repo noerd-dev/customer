@@ -5,7 +5,7 @@
 	"version": "v0.1.2",
 	"license": "proprietary",
     "require": {
-        "noerd/noerd": "^0.6",
+        "noerd/noerd": "^0.6 || ^0.7",
         "owen-it/laravel-auditing": "^14.0"
     },
     "autoload": {
