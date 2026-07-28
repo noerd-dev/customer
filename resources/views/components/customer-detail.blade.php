@@ -9,8 +9,6 @@ use Noerd\Customer\Services\CustomerService;
 new class extends Component {
     use NoerdDetail;
 
-    public const DETAIL_CLASS = Customer::class;
-
     public $detailModel = Customer::class;
 
     #[Url(as: 'customerId', keep: false, except: '')]
@@ -44,12 +42,6 @@ new class extends Component {
         $this->storeProcess($customer);
     }
 
-    public function delete(): void
-    {
-        $customer = Customer::find($this->modelId);
-        $customer->delete();
-        $this->closeModalProcess($this->getListComponent());
-    }
 };
 ?>
 
