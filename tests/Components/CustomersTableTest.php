@@ -206,10 +206,9 @@ it('handles empty search results correctly', function () use ($testSettings): vo
     $component = Livewire::test($testSettings['componentName'])
         ->set('search', 'NonExistentCustomer');
 
-    $componentData = $component->instance();
-    $withData = $componentData->with();
+    $listConfig = $component->instance()->listData();
 
-    expect($withData['listConfig']['rows'])->toHaveCount(0);
+    expect($listConfig['rows'])->toHaveCount(0);
 });
 
 it('pagination works correctly with search', function () use ($testSettings): void {

@@ -11,6 +11,8 @@ new class extends Component {
 
     public const DETAIL_CLASS = Customer::class;
 
+    public $detailModel = Customer::class;
+
     #[Url(as: 'customerId', keep: false, except: '')]
     public $modelId = null;
 
@@ -51,7 +53,7 @@ new class extends Component {
 
         $this->showSuccessIndicator = true;
 
-        if (! $this->modelId) {
+        if (!$this->modelId) {
             $this->modelId = $customer->id;
         }
     }
@@ -70,11 +72,10 @@ new class extends Component {
         <x-noerd::modal-title>Kunde</x-noerd::modal-title>
     </x-slot:header>
 
-    <x-noerd::detail-actions :layout="$pageLayout" :modelId="$modelId" />
+    <x-noerd::detail-actions :layout="$pageLayout" :modelId="$modelId"/>
 
     <x-noerd::tab-content :layout="$pageLayout" :modelId="$modelId">
-        <x-slot:tab1>
-        </x-slot:tab1>
+        <x-slot:tab1></x-slot:tab1>
         <x-slot:tab2>
             @if($modelId)
                 <x-customer::customer-audit :customer="$detailData"/>
@@ -84,7 +85,7 @@ new class extends Component {
 
     <x-slot:footer>
         <x-noerd::delete-save-bar :showDelete="isset($modelId)"
-            :footerComponents="$pageLayout['footerComponents'] ?? []"
-            :modelId="$modelId ?? null"/>
+                                  :footerComponents="$pageLayout['footerComponents'] ?? []"
+                                  :modelId="$modelId ?? null"/>
     </x-slot:footer>
 </x-noerd::page>
