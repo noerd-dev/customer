@@ -34,28 +34,14 @@ new class extends Component {
     {
         $this->validateFromLayout();
 
-        $tenantId = auth()->user()->selected_tenant_id;
-        $email = $this->detailData['email'] ?? null;
-        $attributes = $this->detailData;
-        unset($attributes['email'], $attributes['audits']);
+        $customer = app(CustomerService::class)->save(
+            auth()->user()->selected_tenant_id,
+            $this->detailData,
+            $this->modelId,
+        );
 
-        $customerService = app(CustomerService::class);
-
-        if ($this->modelId) {
-            $customer = Customer::find($this->modelId);
-            $customer->update(array_merge($attributes, ['email' => $email, 'tenant_id' => $tenantId]));
-        } elseif ($email) {
-            $attributes['tenant_id'] = $tenantId;
-            $customer = $customerService->findOrCreateByEmail($tenantId, $email, $attributes);
-        } else {
-            $customer = $customerService->createWithoutEmail($tenantId, array_merge($attributes, ['tenant_id' => $tenantId]));
-        }
-
-        $this->showSuccessIndicator = true;
-
-        if (!$this->modelId) {
-            $this->modelId = $customer->id;
-        }
+        $this->modelId ??= $customer->id;
+        $this->storeProcess($customer);
     }
 
     public function delete(): void

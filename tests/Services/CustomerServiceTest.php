@@ -79,3 +79,95 @@ it('always creates a new customer without email', function (): void {
 
     $this->assertDatabaseCount('customers', 2);
 });
+
+it('save updates an existing customer without creating a new record', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+
+    $existing = Customer::create([
+        'tenant_id' => $tenant->id,
+        'email' => 'old@example.com',
+        'name' => 'Old Name',
+    ]);
+
+    $customer = $service->save($tenant->id, [
+        'name' => 'New Name',
+        'email' => 'new@example.com',
+    ], $existing->id);
+
+    expect($customer->id)->toBe($existing->id);
+    expect($customer->name)->toBe('New Name');
+    expect($customer->email)->toBe('new@example.com');
+    expect($customer->tenant_id)->toBe($tenant->id);
+
+    $this->assertDatabaseCount('customers', 1);
+});
+
+it('save creates a new customer when an email is given', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+
+    $customer = $service->save($tenant->id, [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+    ]);
+
+    expect($customer->email)->toBe('test@example.com');
+    expect($customer->tenant_id)->toBe($tenant->id);
+
+    $this->assertDatabaseCount('customers', 1);
+});
+
+it('save reuses an existing customer with the same email in the tenant', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+
+    $existing = Customer::create([
+        'tenant_id' => $tenant->id,
+        'email' => 'test@example.com',
+        'name' => 'Old Name',
+    ]);
+
+    $customer = $service->save($tenant->id, [
+        'name' => 'New Name',
+        'email' => 'test@example.com',
+    ]);
+
+    expect($customer->id)->toBe($existing->id);
+    expect($customer->name)->toBe('New Name');
+
+    $this->assertDatabaseCount('customers', 1);
+});
+
+it('save creates a new customer without email', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+
+    $customer = $service->save($tenant->id, ['name' => 'Walk-in']);
+
+    expect($customer->email)->toBeNull();
+    expect($customer->tenant_id)->toBe($tenant->id);
+
+    $this->assertDatabaseCount('customers', 1);
+});
+
+it('save ignores the audits key in the payload', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+
+    $existing = Customer::create([
+        'tenant_id' => $tenant->id,
+        'email' => 'test@example.com',
+        'name' => 'Old Name',
+    ]);
+
+    $customer = $service->save($tenant->id, [
+        'name' => 'New Name',
+        'email' => 'test@example.com',
+        'audits' => [['event' => 'updated']],
+    ], $existing->id);
+
+    expect($customer->name)->toBe('New Name');
+
+    $this->assertDatabaseCount('customers', 1);
+});
