@@ -2,8 +2,8 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Noerd\Customer\Support\UserSelectedCustomer;
 use Noerd\Customer\Models\Customer;
+use Noerd\Customer\Support\UserSelectedCustomer;
 use Noerd\Models\Tenant;
 use Tests\TestCase;
 
