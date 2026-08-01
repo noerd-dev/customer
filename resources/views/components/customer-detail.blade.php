@@ -1,6 +1,5 @@
 <?php
 
-use Livewire\Attributes\Url;
 use Livewire\Component;
 use Noerd\Traits\NoerdDetail;
 use Noerd\Customer\Models\Customer;
@@ -11,8 +10,7 @@ new class extends Component {
 
     public $detailModel = Customer::class;
 
-    #[Url(as: 'customerId', keep: false, except: '')]
-    public $modelId = null;
+    public ?string $detailPrimary = 'customerId';
 
     public function mount(): void
     {
