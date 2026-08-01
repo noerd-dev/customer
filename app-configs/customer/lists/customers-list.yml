@@ -2,7 +2,7 @@ title: Customers
 model: Noerd\Customer\Models\Customer
 actions:
   - label: New Customer
-    action: listAction
+    route: customer.detail
 disableSearch: false
 columns:
   - field: name

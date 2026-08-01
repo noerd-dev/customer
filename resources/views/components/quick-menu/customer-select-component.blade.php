@@ -64,7 +64,7 @@ new class extends Component {
         <div class="flex items-center gap-1">
             <x-noerd::button variant="pill"
                              icon="user"
-                             @click="$modal('customer::customer-detail', { modelId: {{ $customerId }} })"
+                             @click="$modalRoute('customer.detail', { modelId: {{ $customerId }} }, null, null, null, { fallbackComponent: 'customer::customer-detail' })"
                              class="font-medium"
                              title="{{ __('Open customer') }}">
                 <span class="max-w-[14rem] truncate">{{ $customerName }}</span>

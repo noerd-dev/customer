@@ -5,18 +5,20 @@ use Livewire\Livewire;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Tests\Traits\CreatesCustomerUser;
 use OwenIt\Auditing\AuditableObserver;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class);
+uses(TestCase::class);
 uses(CreatesCustomerUser::class);
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     config(['audit.console' => true]);
-    Customer::observe(new AuditableObserver());
+    Customer::observe(new AuditableObserver);
 });
 
 $testSettings = [
     'componentName' => 'customer::customer-detail',
+    'detailRoute' => 'customer.detail',
     'listName' => 'customer::customers-list',
     'id' => 'modelId',
     'urlParam' => 'customerId',
@@ -68,7 +70,10 @@ it('it sets and removes the model id in url', function () use ($testSettings): v
     $model = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
 
     Livewire::test($testSettings['listName'])->call('listAction', $model->id)
-        ->assertDispatched('noerdModal', modalComponent: $testSettings['componentName']);
+        ->assertDispatched(
+            'noerdModal',
+            fn (string $event, array $params): bool => ($params['route'] ?? null) === $testSettings['detailRoute'],
+        );
 
     Livewire::withUrlParams(['customerId' => $model->id])
         ->test($testSettings['componentName'])
@@ -182,5 +187,5 @@ it('loads audits for existing customer', function () use ($testSettings): void {
     Livewire::withUrlParams(['customerId' => $model->id])
         ->test($testSettings['componentName'])
         ->assertSet('modelId', $model->id)
-        ->assertSet('detailData.audits', fn($audits) => count($audits) > 0);
+        ->assertSet('detailData.audits', fn ($audits) => count($audits) > 0);
 });

@@ -2,7 +2,7 @@
     "name": "noerd/customer",
     "description": "Customer module for noerd platform",
     "type": "library",
-	"version": "v0.3.2",
+	"version": "v0.3.3",
 	"license": "proprietary",
     "require": {
         "noerd/noerd": "^0.8",
