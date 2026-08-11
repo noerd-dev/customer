@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     config(['audit.console' => true]);
-    Customer::observe(new AuditableObserver);
+    Customer::observe(new AuditableObserver());
 });
 
 $testSettings = [
@@ -72,7 +72,7 @@ it('it sets and removes the model id in url', function () use ($testSettings): v
     Livewire::test($testSettings['listName'])->call('listAction', $model->id)
         ->assertDispatched(
             'noerdModal',
-            fn (string $event, array $params): bool => ($params['route'] ?? null) === $testSettings['detailRoute'],
+            fn(string $event, array $params): bool => ($params['route'] ?? null) === $testSettings['detailRoute'],
         );
 
     Livewire::withUrlParams(['customerId' => $model->id])
@@ -187,5 +187,5 @@ it('loads audits for existing customer', function () use ($testSettings): void {
     Livewire::withUrlParams(['customerId' => $model->id])
         ->test($testSettings['componentName'])
         ->assertSet('modelId', $model->id)
-        ->assertSet('detailData.audits', fn ($audits) => count($audits) > 0);
+        ->assertSet('detailData.audits', fn($audits) => count($audits) > 0);
 });
