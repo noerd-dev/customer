@@ -54,7 +54,7 @@ new class extends Component {
         <x-slot:tab1></x-slot:tab1>
         <x-slot:tab2>
             @if($modelId)
-                <x-customer::customer-audit :customer="$detailData"/>
+                <x-noerd::audit-table :audits="$detailData['audits'] ?? []"/>
             @endif
         </x-slot:tab2>
     </x-noerd::tab-content>
