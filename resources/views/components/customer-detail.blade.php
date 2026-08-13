@@ -51,7 +51,6 @@ new class extends Component {
     <x-noerd::detail-actions :layout="$pageLayout" :modelId="$modelId"/>
 
     <x-noerd::tab-content :layout="$pageLayout" :modelId="$modelId">
-        <x-slot:tab1></x-slot:tab1>
         <x-slot:tab2>
             @if($modelId)
                 <x-noerd::audit-table :audits="$detailData['audits'] ?? []"/>
