@@ -2,7 +2,7 @@
     "name": "noerd/customer",
     "description": "Customer module for noerd platform",
     "type": "library",
-	"version": "v0.3.8",
+	"version": "v0.3.9",
 	"license": "proprietary",
     "require": {
         "laravel/framework": "^13.0",
