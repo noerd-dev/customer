@@ -22,7 +22,7 @@ fields:
     colspan: 6
   - name: detailData.phone
     label: Phone
-    type: text
+    type: phone
     colspan: 6
   - name: detailData.address
     label: Address
