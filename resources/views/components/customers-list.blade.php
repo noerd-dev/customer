@@ -10,6 +10,15 @@ new class extends Component {
     public $listModel = Customer::class;
     public ?string $detailRoute = 'customer.detail';
 
+    public function listData(): array
+    {
+        // Eager-load the defaults: app YAMLs may render them as relation columns.
+        $rows = $this->listQuery($this->listModel)
+            ->with(['defaultInvoiceAddress', 'defaultDeliveryAddress'])
+            ->paginate($this->perPage);
+
+        return $this->buildList($rows);
+    }
 };
 ?>
 

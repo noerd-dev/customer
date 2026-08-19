@@ -7,6 +7,7 @@ use Livewire\Livewire;
 use Noerd\Customer\Commands\CustomerInstallCommand;
 use Noerd\Customer\Commands\CustomerUpdateCommand;
 use Noerd\Customer\Models\Customer;
+use Noerd\Customer\Models\CustomerAddress;
 use Noerd\Services\RelationFieldRegistry;
 use Noerd\Support\RelationFieldDefinition;
 
@@ -37,6 +38,18 @@ class CustomerServiceProvider extends ServiceProvider
             detailComponent: 'customer::customer-detail',
             modelClass: Customer::class,
             titleResolver: 'name',
+        ));
+
+        // Picker for one of the hosting customer's own addresses (the list
+        // scopes itself by the picker-supplied host id) — used by the
+        // default-invoice/-delivery address fields.
+        $relationFieldRegistry->register('customerAddressRelation', RelationFieldDefinition::model(
+            listComponent: 'customer::customer-addresses-list',
+            detailComponent: 'customer::customer-address-detail',
+            detailRoute: 'customer.address.detail',
+            modelClass: CustomerAddress::class,
+            titleResolver: fn (CustomerAddress $address): string => $address->label
+                ?: mb_trim(($address->address_line_1 ?? '') . ', ' . ($address->locality ?? ''), ', '),
         ));
     }
 }

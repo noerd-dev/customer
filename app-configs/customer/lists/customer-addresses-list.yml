@@ -1,0 +1,17 @@
+title: Addresses
+model: Noerd\Customer\Models\CustomerAddress
+actions:
+  - label: New Address
+    route: customer.address.detail
+disableSearch: false
+columns:
+  - field: label
+    label: Label
+  - field: address_line_1
+    label: Address
+  - field: postal_code
+    label: Zip Code
+  - field: locality
+    label: City
+  - field: country_code
+    label: Country

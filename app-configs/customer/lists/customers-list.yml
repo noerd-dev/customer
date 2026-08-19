@@ -14,9 +14,3 @@ columns:
     label: Email
   - field: phone
     label: Phone
-  - field: address
-    label: Address
-  - field: zipcode
-    label: Zip Code
-  - field: city
-    label: City

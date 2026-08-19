@@ -1,0 +1,31 @@
+title: Address
+description: ''
+fields:
+  - name: detailData.label
+    label: Label
+    type: text
+    colspan: 6
+  - name: detailData.country_code
+    label: Country
+    type: setupCollectionSelect
+    collectionKey: COUNTRIES
+    displayField: name
+    valueField: code
+    colspan: 6
+  - name: detailData.address_line_1
+    label: Address Line 1
+    type: text
+    colspan: 6
+    required: true
+  - name: detailData.address_line_2
+    label: Address Line 2
+    type: text
+    colspan: 6
+  - name: detailData.postal_code
+    label: Zip Code
+    type: text
+    colspan: 6
+  - name: detailData.locality
+    label: City
+    type: text
+    colspan: 6

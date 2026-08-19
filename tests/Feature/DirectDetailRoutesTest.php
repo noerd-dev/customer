@@ -9,3 +9,7 @@ uses(Tests\TestCase::class);
 it('has direct route for customer-detail', function (): void {
     expect(Route::has('customer.detail'))->toBeTrue();
 });
+
+it('has direct route for customer-address-detail', function (): void {
+    expect(Route::has('customer.address.detail'))->toBeTrue();
+});

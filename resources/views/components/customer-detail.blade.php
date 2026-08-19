@@ -39,9 +39,7 @@ new class extends Component {
         $this->modelId ??= $customer->id;
         $this->storeProcess($customer);
     }
-
-};
-?>
+}; ?>
 
 <x-noerd::page>
     <x-slot:header>
@@ -58,7 +56,6 @@ new class extends Component {
 
     <x-slot:footer>
         <x-noerd::delete-save-bar :showDelete="isset($modelId)"
-                                  :footerComponents="$pageLayout['footerComponents'] ?? []"
                                   :modelId="$modelId ?? null"/>
     </x-slot:footer>
 </x-noerd::page>
