@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         if (! Schema::hasTable('customer_addresses')) {
             Schema::create('customer_addresses', function (Blueprint $table): void {
-                $table->ulid('id')->primary();
+                $table->id();
                 $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
                 $table->foreignId('customer_id')->constrained('customers')->cascadeOnDelete();
                 $table->string('label')->nullable();
@@ -47,9 +47,9 @@ return new class extends Migration {
 
         if (! Schema::hasColumn('customers', 'default_invoice_address_id')) {
             Schema::table('customers', function (Blueprint $table): void {
-                $table->foreignUlid('default_invoice_address_id')->nullable()
+                $table->foreignId('default_invoice_address_id')->nullable()
                     ->constrained('customer_addresses')->nullOnDelete();
-                $table->foreignUlid('default_delivery_address_id')->nullable()
+                $table->foreignId('default_delivery_address_id')->nullable()
                     ->constrained('customer_addresses')->nullOnDelete();
             });
         }

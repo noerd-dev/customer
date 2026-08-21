@@ -10,11 +10,11 @@ use Noerd\Models\Tenant;
 uses(Tests\TestCase::class);
 uses(RefreshDatabase::class);
 
-it('creates addresses with a ulid string primary key', function (): void {
+it('creates addresses with an auto-incrementing integer primary key', function (): void {
     $address = CustomerAddress::factory()->create();
 
-    expect($address->id)->toBeString();
-    expect(mb_strlen($address->id))->toBe(26);
+    expect($address->id)->toBeInt();
+    expect($address->id)->toBeGreaterThan(0);
 });
 
 it('computes the fingerprint on create and recomputes it on update', function (): void {

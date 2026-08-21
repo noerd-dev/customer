@@ -77,7 +77,7 @@ class CustomerAddressService
      * Assign default addresses with an ownership guard — an id not belonging to
      * the customer is ignored (set to null).
      */
-    public function setDefaults(Customer $customer, ?string $invoiceAddressId, ?string $deliveryAddressId): void
+    public function setDefaults(Customer $customer, ?int $invoiceAddressId, ?int $deliveryAddressId): void
     {
         $customer->forceFill([
             'default_invoice_address_id' => $this->ownedAddressId($customer, $invoiceAddressId),
@@ -99,7 +99,7 @@ class CustomerAddressService
         return false;
     }
 
-    private function ownedAddressId(Customer $customer, ?string $addressId): ?string
+    private function ownedAddressId(Customer $customer, ?int $addressId): ?int
     {
         if (! $addressId) {
             return null;
