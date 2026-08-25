@@ -86,6 +86,23 @@ it('normalizes invalid country codes to null and valid ones to uppercase', funct
     expect($first->refresh()->country_code)->toBe('DE');
 });
 
+it('stores postal codes longer than 16 characters', function (): void {
+    $user = $this->withCustomerModule();
+    $this->actingAs($user);
+
+    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $longPostalCode = str_repeat('1234567890', 3);
+
+    Livewire::test('customer::customer-address-detail')
+        ->call('customerSelected', $customer->id)
+        ->set('detailData.address_line_1', 'Musterweg 1')
+        ->set('detailData.postal_code', $longPostalCode)
+        ->call('store')
+        ->assertHasNoErrors();
+
+    expect(CustomerAddress::withoutGlobalScopes()->first()->postal_code)->toBe($longPostalCode);
+});
+
 it('updates an existing address', function (): void {
     $user = $this->withCustomerModule();
     $this->actingAs($user);

@@ -20,7 +20,7 @@ return new class extends Migration {
                 $table->string('administrative_area', 100)->nullable();
 
                 $table->string('locality', 100)->nullable();
-                $table->string('postal_code', 16)->nullable();
+                $table->string('postal_code')->nullable();
                 $table->string('sorting_code', 16)->nullable();
 
                 $table->string('address_line_1', 200);
