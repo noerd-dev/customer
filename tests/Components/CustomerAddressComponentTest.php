@@ -189,6 +189,67 @@ it('makes the first address both defaults automatically', function (): void {
     expect($customer->default_invoice_address_id)->toBe($first->id);
 });
 
+it('registers the customerAddressCardRelation type with its card renderer', function (): void {
+    $definition = app(\Noerd\Services\RelationFieldRegistry::class)->resolve('customerAddressCardRelation');
+
+    expect($definition)->not->toBeNull();
+    expect($definition->listComponent)->toBe('customer::customer-addresses-list');
+    expect($definition->fieldComponent)->toBe('customer::customer-address-card-field');
+
+    $fieldType = app(\Noerd\Services\FieldTypeRegistry::class)->resolve('customerAddressCardRelation');
+    expect($fieldType?->kind)->toBe('livewire');
+    expect($fieldType?->target)->toBe('customer::customer-address-card-field');
+});
+
+it('renders the address card and keeps the generic relation behaviour', function (): void {
+    $user = $this->withCustomerModule();
+    $this->actingAs($user);
+
+    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $address = CustomerAddress::factory()->create([
+        'tenant_id' => $user->selected_tenant_id,
+        'customer_id' => $customer->id,
+        'label' => 'Zentrale',
+        'address_line_1' => 'Musterweg 1',
+        'postal_code' => '12345',
+        'locality' => 'Berlin',
+    ]);
+    $other = CustomerAddress::factory()->create([
+        'tenant_id' => $user->selected_tenant_id,
+        'customer_id' => $customer->id,
+        'address_line_1' => 'Neue Straße 2',
+    ]);
+
+    $component = Livewire::test('customer::customer-address-card-field', [
+        'relationType' => 'customerAddressCardRelation',
+        'fieldName' => 'detailData.default_invoice_address_id',
+        'label' => 'Default Invoice Address',
+        'value' => $address->id,
+        'modelId' => $customer->id,
+    ]);
+
+    $component
+        ->assertSee('Zentrale')
+        ->assertSee('Musterweg 1')
+        ->assertSee('12345 Berlin');
+
+    // Selection round trip is inherited from RelationFieldComponent.
+    $component
+        ->call('relationSelected', $other->id, 'detailData.default_invoice_address_id')
+        ->assertSet('value', $other->id)
+        ->assertSee('Neue Straße 2')
+        ->assertDispatched(
+            'setFieldValue',
+            field: 'detailData.default_invoice_address_id',
+            value: $other->id,
+        );
+
+    $component
+        ->call('clear')
+        ->assertSet('value', null)
+        ->assertSee(__('Select address'));
+});
+
 it('refreshes the default address options in the customer detail', function (): void {
     $user = $this->withCustomerModule();
     $this->actingAs($user);

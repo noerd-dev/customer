@@ -51,5 +51,17 @@ class CustomerServiceProvider extends ServiceProvider
             titleResolver: fn (CustomerAddress $address): string => $address->label
                 ?: mb_trim(($address->address_line_1 ?? '') . ', ' . ($address->locality ?? ''), ', '),
         ));
+
+        // Same picker relation, rendered as a clickable address card instead of
+        // the generic relation input (custom fieldComponent).
+        $relationFieldRegistry->register('customerAddressCardRelation', RelationFieldDefinition::model(
+            listComponent: 'customer::customer-addresses-list',
+            detailComponent: 'customer::customer-address-detail',
+            detailRoute: 'customer.address.detail',
+            modelClass: CustomerAddress::class,
+            titleResolver: fn (CustomerAddress $address): string => $address->label
+                ?: mb_trim(($address->address_line_1 ?? '') . ', ' . ($address->locality ?? ''), ', '),
+            fieldComponent: 'customer::customer-address-card-field',
+        ));
     }
 }
