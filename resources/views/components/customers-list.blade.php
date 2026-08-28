@@ -12,7 +12,6 @@ new class extends Component {
 
     public function listData(): array
     {
-        // Eager-load the defaults: app YAMLs may render them as relation columns.
         $rows = $this->listQuery($this->listModel)
             ->with(['defaultInvoiceAddress', 'defaultDeliveryAddress'])
             ->paginate($this->perPage);
