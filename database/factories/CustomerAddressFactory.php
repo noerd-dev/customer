@@ -15,7 +15,7 @@ class CustomerAddressFactory extends Factory
     {
         return [
             'tenant_id' => Tenant::factory(),
-            'customer_id' => fn (array $attributes) => Customer::factory()->create([
+            'customer_id' => fn(array $attributes) => Customer::factory()->create([
                 'tenant_id' => $attributes['tenant_id'],
             ])->id,
             'label' => null,

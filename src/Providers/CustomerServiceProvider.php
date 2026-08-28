@@ -48,7 +48,7 @@ class CustomerServiceProvider extends ServiceProvider
             detailComponent: 'customer::customer-address-detail',
             detailRoute: 'customer.address.detail',
             modelClass: CustomerAddress::class,
-            titleResolver: fn (CustomerAddress $address): string => $address->label
+            titleResolver: fn(CustomerAddress $address): string => $address->label
                 ?: mb_trim(($address->address_line_1 ?? '') . ', ' . ($address->locality ?? ''), ', '),
         ));
 
@@ -59,7 +59,7 @@ class CustomerServiceProvider extends ServiceProvider
             detailComponent: 'customer::customer-address-detail',
             detailRoute: 'customer.address.detail',
             modelClass: CustomerAddress::class,
-            titleResolver: fn (CustomerAddress $address): string => $address->label
+            titleResolver: fn(CustomerAddress $address): string => $address->label
                 ?: mb_trim(($address->address_line_1 ?? '') . ', ' . ($address->locality ?? ''), ', '),
             fieldComponent: 'customer::customer-address-card-field',
         ));

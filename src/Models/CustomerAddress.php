@@ -46,12 +46,12 @@ class CustomerAddress extends Model implements Auditable
      */
     public static function computeFingerprint(array $attributes): string
     {
-        $normalize = fn (mixed $value): string => mb_strtolower(
-            trim(preg_replace('/\s+/u', ' ', (string) ($value ?? ''))),
+        $normalize = fn(mixed $value): string => mb_strtolower(
+            mb_trim(preg_replace('/\s+/u', ' ', (string) ($value ?? ''))),
         );
 
         $parts = array_map(
-            fn (string $field): string => $normalize($attributes[$field] ?? null),
+            fn(string $field): string => $normalize($attributes[$field] ?? null),
             self::FINGERPRINT_FIELDS,
         );
 

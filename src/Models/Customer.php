@@ -38,7 +38,7 @@ class Customer extends Model implements Auditable, DeclaresRelationForms
                 relation: 'defaultInvoiceAddress',
                 fields: ['address_line_1', 'address_line_2', 'postal_code', 'locality', 'country_code'],
             )
-                ->persistWhen(fn (array $data): bool => app(CustomerAddressService::class)->hasAddressData($data))
+                ->persistWhen(fn(array $data): bool => app(CustomerAddressService::class)->hasAddressData($data))
                 ->persistUsing(function (Customer $customer, array $data): void {
                     app(CustomerAddressService::class)->upsertFor(
                         $customer,

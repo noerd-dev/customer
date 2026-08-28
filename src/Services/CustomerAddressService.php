@@ -29,6 +29,18 @@ class CustomerAddressService
     private const CORE_FIELDS = ['address_line_1', 'address_line_2', 'postal_code', 'locality', 'country_code'];
 
     /**
+     * The code column is char(2) and the values come from tenant-maintainable
+     * collection entries — anything that is not a two-letter code becomes null
+     * instead of a database error.
+     */
+    public static function normalizeCountryCode(mixed $value): ?string
+    {
+        $value = mb_strtoupper(mb_trim((string) ($value ?? '')));
+
+        return preg_match('/^[A-Z]{2}$/', $value) === 1 ? $value : null;
+    }
+
+    /**
      * Reuse an existing address of THIS customer with the same fingerprint,
      * otherwise create a new one. tenant_id/customer_id always come from the
      * customer — never from the payload.
@@ -41,7 +53,7 @@ class CustomerAddressService
     ): CustomerAddress {
         $data = Arr::only($data, self::ADDRESS_FIELDS);
         $data = $this->normalize($data);
-        $data['address_line_1'] = trim((string) ($data['address_line_1'] ?? ''));
+        $data['address_line_1'] = mb_trim((string) ($data['address_line_1'] ?? ''));
 
         $fingerprint = CustomerAddress::computeFingerprint($data);
 
@@ -52,7 +64,7 @@ class CustomerAddressService
 
         if ($address) {
             $update = Arr::only($data, ['label', 'latitude', 'longitude', 'verified_at', 'verification_provider']);
-            $update = array_filter($update, fn (mixed $value): bool => $value !== null);
+            $update = array_filter($update, fn(mixed $value): bool => $value !== null);
             if ($update !== []) {
                 $address->update($update);
             }
@@ -91,7 +103,7 @@ class CustomerAddressService
     public function hasAddressData(?array $data): bool
     {
         foreach (self::CORE_FIELDS as $field) {
-            if (trim((string) ($data[$field] ?? '')) !== '') {
+            if (mb_trim((string) ($data[$field] ?? '')) !== '') {
                 return true;
             }
         }
@@ -119,7 +131,7 @@ class CustomerAddressService
     private function normalize(array $data): array
     {
         $data = array_map(
-            fn (mixed $value): mixed => is_string($value) && trim($value) === '' ? null : $value,
+            fn(mixed $value): mixed => is_string($value) && mb_trim($value) === '' ? null : $value,
             $data,
         );
 
@@ -128,17 +140,5 @@ class CustomerAddressService
         }
 
         return $data;
-    }
-
-    /**
-     * The code column is char(2) and the values come from tenant-maintainable
-     * collection entries — anything that is not a two-letter code becomes null
-     * instead of a database error.
-     */
-    public static function normalizeCountryCode(mixed $value): ?string
-    {
-        $value = mb_strtoupper(trim((string) ($value ?? '')));
-
-        return preg_match('/^[A-Z]{2}$/', $value) === 1 ? $value : null;
     }
 }
