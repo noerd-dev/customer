@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Models\CustomerAddress;
 use Noerd\Customer\Services\CustomerAddressService;
-use Noerd\Customer\Services\CustomerService;
 use Noerd\Models\Tenant;
 
 uses(Tests\TestCase::class);
@@ -102,56 +101,5 @@ it('setDefaults rejects addresses of another customer', function (): void {
 
     $customer->refresh();
     expect($customer->default_invoice_address_id)->toBe($own->id);
-    expect($customer->default_delivery_address_id)->toBeNull();
-});
-
-it('save persists customer and address with both defaults in one call', function (): void {
-    $tenant = Tenant::factory()->create();
-
-    $customer = app(CustomerService::class)->save($tenant->id, [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
-    ], null, [
-        'address_line_1' => 'Musterweg 1',
-        'postal_code' => '12345',
-        'locality' => 'Berlin',
-    ]);
-
-    $customer->refresh();
-    expect($customer->default_invoice_address_id)->not->toBeNull();
-    expect($customer->default_delivery_address_id)->toBe($customer->default_invoice_address_id);
-    expect($customer->defaultInvoiceAddress->address_line_1)->toBe('Musterweg 1');
-});
-
-it('save without address data creates no address', function (): void {
-    $tenant = Tenant::factory()->create();
-
-    $customer = app(CustomerService::class)->save($tenant->id, [
-        'name' => 'Test User',
-    ], null, [
-        'address_line_1' => '',
-        'postal_code' => ' ',
-    ]);
-
-    expect(CustomerAddress::withoutGlobalScopes()->count())->toBe(0);
-    expect($customer->default_invoice_address_id)->toBeNull();
-});
-
-it('save normalizes empty default address ids and rejects foreign ones', function (): void {
-    $tenant = Tenant::factory()->create();
-    $customer = Customer::factory()->create(['tenant_id' => $tenant->id]);
-    $other = Customer::factory()->create(['tenant_id' => $tenant->id]);
-    $foreign = app(CustomerAddressService::class)->upsertFor($other, ['address_line_1' => 'Foreign Street 1']);
-
-    $service = app(CustomerService::class);
-
-    $service->save($tenant->id, [
-        'name' => 'Test',
-        'default_invoice_address_id' => '',
-        'default_delivery_address_id' => $foreign->id,
-    ], $customer->id);
-
-    $customer->refresh();
-    expect($customer->default_invoice_address_id)->toBeNull();
     expect($customer->default_delivery_address_id)->toBeNull();
 });

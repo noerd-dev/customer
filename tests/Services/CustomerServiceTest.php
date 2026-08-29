@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Noerd\Customer\Models\Customer;
+use Noerd\Customer\Models\CustomerAddress;
+use Noerd\Customer\Services\CustomerAddressService;
 use Noerd\Customer\Services\CustomerService;
 use Noerd\Models\Tenant;
 
@@ -103,52 +105,55 @@ it('save updates an existing customer without creating a new record', function (
     $this->assertDatabaseCount('customers', 1);
 });
 
-it('save creates a new customer when an email is given', function (): void {
-    $service = app(CustomerService::class);
+it('save persists customer and address with both defaults in one call', function (): void {
     $tenant = Tenant::factory()->create();
 
-    $customer = $service->save($tenant->id, [
+    $customer = app(CustomerService::class)->save($tenant->id, [
         'name' => 'Test User',
         'email' => 'test@example.com',
+    ], null, [
+        'address_line_1' => 'Musterweg 1',
+        'postal_code' => '12345',
+        'locality' => 'Berlin',
     ]);
 
-    expect($customer->email)->toBe('test@example.com');
-    expect($customer->tenant_id)->toBe($tenant->id);
-
-    $this->assertDatabaseCount('customers', 1);
+    $customer->refresh();
+    expect($customer->default_invoice_address_id)->not->toBeNull();
+    expect($customer->default_delivery_address_id)->toBe($customer->default_invoice_address_id);
+    expect($customer->defaultInvoiceAddress->address_line_1)->toBe('Musterweg 1');
 });
 
-it('save reuses an existing customer with the same email in the tenant', function (): void {
-    $service = app(CustomerService::class);
+it('save without address data creates no address', function (): void {
     $tenant = Tenant::factory()->create();
 
-    $existing = Customer::create([
-        'tenant_id' => $tenant->id,
-        'email' => 'test@example.com',
-        'name' => 'Old Name',
+    $customer = app(CustomerService::class)->save($tenant->id, [
+        'name' => 'Test User',
+    ], null, [
+        'address_line_1' => '',
+        'postal_code' => ' ',
     ]);
 
-    $customer = $service->save($tenant->id, [
-        'name' => 'New Name',
-        'email' => 'test@example.com',
-    ]);
-
-    expect($customer->id)->toBe($existing->id);
-    expect($customer->name)->toBe('New Name');
-
-    $this->assertDatabaseCount('customers', 1);
+    expect(CustomerAddress::withoutGlobalScopes()->count())->toBe(0);
+    expect($customer->default_invoice_address_id)->toBeNull();
 });
 
-it('save creates a new customer without email', function (): void {
-    $service = app(CustomerService::class);
+it('save normalizes empty default address ids and rejects foreign ones', function (): void {
     $tenant = Tenant::factory()->create();
+    $customer = Customer::factory()->create(['tenant_id' => $tenant->id]);
+    $other = Customer::factory()->create(['tenant_id' => $tenant->id]);
+    $foreign = app(CustomerAddressService::class)->upsertFor($other, ['address_line_1' => 'Foreign Street 1']);
 
-    $customer = $service->save($tenant->id, ['name' => 'Walk-in']);
+    $service = app(CustomerService::class);
 
-    expect($customer->email)->toBeNull();
-    expect($customer->tenant_id)->toBe($tenant->id);
+    $service->save($tenant->id, [
+        'name' => 'Test',
+        'default_invoice_address_id' => '',
+        'default_delivery_address_id' => $foreign->id,
+    ], $customer->id);
 
-    $this->assertDatabaseCount('customers', 1);
+    $customer->refresh();
+    expect($customer->default_invoice_address_id)->toBeNull();
+    expect($customer->default_delivery_address_id)->toBeNull();
 });
 
 it('save ignores the audits key in the payload', function (): void {

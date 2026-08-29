@@ -48,3 +48,7 @@ it('does not require noerd/party in composer.json', function (): void {
 it('has no source references to the party module', function (): void {
     expect(customerBoundaryScan(['Noerd\\Party\\']))->toBe([]);
 });
+
+it('declares every module dependency it uses', function (): void {
+    assertModuleDependenciesDeclared(dirname(__DIR__, 2));
+});

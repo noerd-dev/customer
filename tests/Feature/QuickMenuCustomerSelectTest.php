@@ -4,16 +4,17 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Support\UserSelectedCustomer;
-use Noerd\Models\Tenant;
+use Noerd\Customer\Tests\Traits\CreatesCustomerUser;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class, CreatesCustomerUser::class);
 
 it('applies the selected customer in the quick-menu customer selector', function (): void {
-    $tenant = Tenant::factory()->create();
+    $user = $this->withCustomerModule();
+    $this->actingAs($user);
 
     $customer = Customer::factory()->create([
-        'tenant_id' => $tenant->id,
+        'tenant_id' => $user->tenants->first()->id,
         'name' => 'Peter Pan',
     ]);
 
@@ -27,10 +28,11 @@ it('applies the selected customer in the quick-menu customer selector', function
 });
 
 it('clears the selected customer in the quick-menu customer selector', function (): void {
-    $tenant = Tenant::factory()->create();
+    $user = $this->withCustomerModule();
+    $this->actingAs($user);
 
     $customer = Customer::factory()->create([
-        'tenant_id' => $tenant->id,
+        'tenant_id' => $user->tenants->first()->id,
         'name' => 'Peter Pan',
     ]);
 
