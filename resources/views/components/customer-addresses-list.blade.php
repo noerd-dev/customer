@@ -17,12 +17,6 @@ new class extends Component {
     /** The hosting record's id when opened as a relation-field picker. */
     public ?int $id = null;
 
-    public function mount(): void
-    {
-        $this->mountList();
-        $this->setDefaultSort('created_at', false);
-    }
-
     public function listData(): array
     {
         $scopeCustomerId = $this->customerId ?? $this->id;

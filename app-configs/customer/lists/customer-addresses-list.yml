@@ -1,4 +1,6 @@
 title: Addresses
+defaultSort:
+  field: created_at
 model: Noerd\Customer\Models\CustomerAddress
 actions:
   - label: New Address
