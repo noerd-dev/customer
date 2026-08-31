@@ -10,10 +10,15 @@ Foundation package providing the base customer model, migration, and views. Desi
 
 ```bash
 composer require noerd/customer
-php artisan noerd:module customer
+php artisan noerd:install-customer
 ```
 
-That's it — the package is auto-discovered via the Laravel service provider declared in `composer.json`.
+`noerd:install-customer` copies the YAML configs into `app-configs/customer/`, registers the
+**Customer** tenant app and runs the module migrations (confirmation prompt). The package itself is auto-discovered via
+the Laravel service provider declared in `composer.json`.
+
+Run `php artisan noerd:update-customer` after upgrading the package (idempotent, also covered by
+`noerd:update-all`).
 
 ## Installation as Submodule to contribute
 
@@ -44,7 +49,7 @@ Then run:
 
 ```bash
 composer update noerd/customer
-php artisan noerd:module customer
+php artisan noerd:install-customer
 ```
 
 This way, you can make changes directly in `app-modules/customer` and push them back to the customer repository.
