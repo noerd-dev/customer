@@ -13,10 +13,13 @@ uses(TestCase::class);
 uses(CreatesCustomerUser::class);
 uses(RefreshDatabase::class);
 
-it('validates the data', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
+beforeEach(function (): void {
+    $this->user = $this->withCustomerModule();
+    $this->actingAs($this->user);
+    $this->tenantId = $this->user->selected_tenant_id;
+});
 
+it('validates the data', function (): void {
     $component = Livewire::test('customer::customer-address-detail')
         ->set('detailData', [])
         ->call('store');
@@ -25,10 +28,7 @@ it('validates the data', function (): void {
 });
 
 it('creates an address for the selected customer', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
         ->call('customerSelected', $customer->id)
@@ -42,15 +42,12 @@ it('creates an address for the selected customer', function (): void {
     $address = CustomerAddress::withoutGlobalScopes()->first();
     expect($address)->not->toBeNull();
     expect($address->customer_id)->toBe($customer->id);
-    expect($address->tenant_id)->toBe($user->selected_tenant_id);
+    expect($address->tenant_id)->toBe($this->tenantId);
     expect($address->address_line_1)->toBe('Musterweg 1');
 });
 
 it('stores an empty country selection as null', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
         ->call('customerSelected', $customer->id)
@@ -63,10 +60,7 @@ it('stores an empty country selection as null', function (): void {
 });
 
 it('normalizes invalid country codes to null and valid ones to uppercase', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
         ->call('customerSelected', $customer->id)
@@ -87,10 +81,7 @@ it('normalizes invalid country codes to null and valid ones to uppercase', funct
 });
 
 it('stores postal codes longer than 16 characters', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
     $longPostalCode = str_repeat('1234567890', 3);
 
     Livewire::test('customer::customer-address-detail')
@@ -104,12 +95,9 @@ it('stores postal codes longer than 16 characters', function (): void {
 });
 
 it('updates an existing address', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
     $address = CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $customer->id,
     ]);
 
@@ -122,67 +110,43 @@ it('updates an existing address', function (): void {
     expect($address->refresh()->address_line_1)->toBe('Neue Straße 2');
 });
 
-it('lists only the addresses of the given customer', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
-    $other = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
-
-    CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
-        'customer_id' => $customer->id,
-        'address_line_1' => 'Own Street 1',
-    ]);
-    CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
-        'customer_id' => $other->id,
-        'address_line_1' => 'Other Street 9',
-    ]);
-
-    Livewire::test('customer::customer-addresses-list', ['customerId' => $customer->id])
-        ->assertSee('Own Street 1')
-        ->assertDontSee('Other Street 9');
-});
-
 it('registers the customerAddressRelation picker type', function (): void {
     $definition = app(\Noerd\Services\RelationFieldRegistry::class)->resolve('customerAddressRelation');
 
     expect($definition)->not->toBeNull();
     expect($definition->listComponent)->toBe('customer::customer-addresses-list');
 
-    $address = CustomerAddress::factory()->create(['label' => 'Zentrale']);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+    $address = CustomerAddress::factory()->create([
+        'tenant_id' => $this->tenantId,
+        'customer_id' => $customer->id,
+        'label' => 'Zentrale',
+    ]);
     expect($definition->resolveTitleForValue($address->id))->toBe('Zentrale');
 });
 
-it('scopes the picker list by the host id supplied by the relation field', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
-    $other = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+it('scopes the picker list by the host id supplied by the relation field', function (string $parameter): void {
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+    $other = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $customer->id,
         'address_line_1' => 'Own Street 1',
     ]);
     CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $other->id,
         'address_line_1' => 'Other Street 9',
     ]);
 
-    Livewire::test('customer::customer-addresses-list', ['id' => $customer->id])
+    Livewire::test('customer::customer-addresses-list', [$parameter => $customer->id])
         ->assertSee('Own Street 1')
         ->assertDontSee('Other Street 9');
-});
+})->with(['id', 'customerId']);
 
 it('makes the first address both defaults automatically', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
         ->call('customerSelected', $customer->id)
@@ -219,12 +183,9 @@ it('registers the customerAddressCardRelation type with its card renderer', func
 });
 
 it('renders the address card and keeps the generic relation behaviour', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
     $address = CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $customer->id,
         'label' => 'Zentrale',
         'address_line_1' => 'Musterweg 1',
@@ -232,7 +193,7 @@ it('renders the address card and keeps the generic relation behaviour', function
         'locality' => 'Berlin',
     ]);
     $other = CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $customer->id,
         'address_line_1' => 'Neue Straße 2',
     ]);
@@ -268,12 +229,9 @@ it('renders the address card and keeps the generic relation behaviour', function
 });
 
 it('refreshes the default address options in the customer detail', function (): void {
-    $user = $this->withCustomerModule();
-    $this->actingAs($user);
-
-    $customer = Customer::factory()->create(['tenant_id' => $user->selected_tenant_id]);
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
     $address = CustomerAddress::factory()->create([
-        'tenant_id' => $user->selected_tenant_id,
+        'tenant_id' => $this->tenantId,
         'customer_id' => $customer->id,
         'label' => 'Zentrale',
     ]);

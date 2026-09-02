@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Architecture guard: the customer module must stay fully independent from the
  * party module. No composer requirement and no source reference may exist.
  */
-function customerBoundaryScan(array $needles): array
+uses(Tests\TestCase::class);
+
+function zzCustomerBoundaryScan(array $needles): array
 {
     $hits = [];
     $root = dirname(__DIR__, 2);
@@ -46,7 +50,7 @@ it('does not require noerd/party in composer.json', function (): void {
 });
 
 it('has no source references to the party module', function (): void {
-    expect(customerBoundaryScan(['Noerd\\Party\\']))->toBe([]);
+    expect(zzCustomerBoundaryScan(['Noerd\\Party\\']))->toBe([]);
 });
 
 it('declares every module dependency it uses', function (): void {

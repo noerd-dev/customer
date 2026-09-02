@@ -176,3 +176,36 @@ it('save ignores the audits key in the payload', function (): void {
 
     $this->assertDatabaseCount('customers', 1);
 });
+
+it('save keeps a forged tenant_id in the payload out of the record', function (): void {
+    $service = app(CustomerService::class);
+    $tenant = Tenant::factory()->create();
+    $foreignTenant = Tenant::factory()->create();
+
+    // Create path with an email.
+    $created = $service->save($tenant->id, [
+        'name' => 'Forged Create',
+        'email' => 'forged@example.com',
+        'tenant_id' => $foreignTenant->id,
+    ]);
+
+    expect($created->tenant_id)->toBe($tenant->id);
+
+    // Create path without an email.
+    $walkIn = $service->save($tenant->id, [
+        'name' => 'Forged Walk-in',
+        'tenant_id' => $foreignTenant->id,
+    ]);
+
+    expect($walkIn->tenant_id)->toBe($tenant->id);
+
+    // Update path.
+    $updated = $service->save($tenant->id, [
+        'name' => 'Forged Update',
+        'tenant_id' => $foreignTenant->id,
+    ], $created->id);
+
+    expect($updated->fresh()->tenant_id)->toBe($tenant->id);
+
+    expect(Customer::withoutGlobalScopes()->where('tenant_id', $foreignTenant->id)->count())->toBe(0);
+});
