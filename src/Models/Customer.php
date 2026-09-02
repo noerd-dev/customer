@@ -2,6 +2,7 @@
 
 namespace Noerd\Customer\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +49,16 @@ class Customer extends Model implements Auditable, DeclaresRelationForms
                     );
                 }),
         ];
+    }
+
+    /**
+     * Narrow to the customer linked to a user of the consumer app's website
+     * guard. The website user table belongs to the consumer application, so the
+     * link is a plain id column without a foreign key.
+     */
+    public function scopeForWebsiteUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('website_user_id', $userId);
     }
 
     public function addresses(): HasMany
