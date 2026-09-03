@@ -2,11 +2,11 @@
     "name": "noerd/customer",
     "description": "Customer module for noerd platform",
     "type": "library",
-    "version": "v0.3.26",
+    "version": "v0.3.27",
     "license": "proprietary",
     "require": {
         "laravel/framework": "^12.0 || ^13.0",
-        "noerd/noerd": "^0.10.10 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0",
+        "noerd/noerd": "^0.10.10 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0 || ^0.15.0",
         "owen-it/laravel-auditing": "^14.0"
     },
     "autoload": {
