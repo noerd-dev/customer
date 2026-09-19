@@ -4,6 +4,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Noerd\Customer\Support\UserSelectedCustomer;
 use Noerd\Customer\Models\Customer;
+use Noerd\Helpers\TenantHelper;
 
 new class extends Component {
     public ?int $customerId = null;
@@ -18,7 +19,9 @@ new class extends Component {
     #[On('customerSelected')]
     public function customerSelected(int $customerId): void
     {
-        $customer = Customer::withoutGlobalScopes()->find($customerId);
+        // Livewire events are dispatchable from the browser, so the id is
+        // untrusted: resolve it against the tenant the user is working in.
+        $customer = Customer::findForTenant($customerId, TenantHelper::currentTenantId());
 
         if (! $customer) {
             return;

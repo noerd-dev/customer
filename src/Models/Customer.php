@@ -61,6 +61,28 @@ class Customer extends Model implements Auditable, DeclaresRelationForms
         return $query->where('website_user_id', $userId);
     }
 
+    /**
+     * Resolve a customer id that came from OUTSIDE — a picker event, a mount
+     * argument, a session value — against a tenant that is known to be right.
+     *
+     * Livewire events are dispatchable from the browser, and the tenant scope
+     * does not apply on public frontends (no signed-in user), so a plain
+     * `find()` on such an id reads any customer in the installation. This
+     * lifts the scopes deliberately (public frontends need that) and replaces
+     * them with the tenant the caller vouches for. A null tenant resolves
+     * nothing — there is no "any tenant" answer.
+     */
+    public static function findForTenant(mixed $customerId, ?int $tenantId): ?self
+    {
+        if ($tenantId === null || ! is_numeric($customerId)) {
+            return null;
+        }
+
+        return self::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->find((int) $customerId);
+    }
+
     public function addresses(): HasMany
     {
         return $this->hasMany(CustomerAddress::class);

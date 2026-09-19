@@ -3,6 +3,7 @@
 namespace Noerd\Customer\Support;
 
 use Noerd\Customer\Models\Customer;
+use Noerd\Helpers\TenantHelper;
 
 /**
  * Single source of truth for the customer the current backend user has selected.
@@ -20,6 +21,15 @@ class UserSelectedCustomer
         return $id ? (int) $id : null;
     }
 
+    /**
+     * The selected customer — always re-checked against the tenant the user is
+     * working in.
+     *
+     * The id comes out of the session, and a session may still carry a
+     * selection from before a tenant switch (or one a tampered picker event
+     * put there). Resolving it unscoped would let downstream flows — a stamp
+     * card sale, a booking — act on a customer of another tenant.
+     */
     public static function get(): ?Customer
     {
         $id = self::getId();
@@ -28,7 +38,13 @@ class UserSelectedCustomer
             return null;
         }
 
-        return Customer::withoutGlobalScopes()->find($id);
+        $customer = Customer::findForTenant($id, TenantHelper::currentTenantId());
+
+        if (! $customer) {
+            self::clear();
+        }
+
+        return $customer;
     }
 
     public static function set(int $customerId): void
