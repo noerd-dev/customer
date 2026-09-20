@@ -38,7 +38,6 @@ afterEach(function (): void {
 function runZzCustomerInstall(object $test): Illuminate\Testing\PendingCommand
 {
     return $test->artisan('noerd:install-customer', ['--force' => true])
-        ->expectsConfirmation('Should Customer be installed as a hidden app (not shown in main navigation)?', 'no')
         ->expectsQuestion('App title', 'Customer')
         ->expectsConfirmation('Would you like to assign the app to tenants now?', 'no')
         ->expectsConfirmation('Would you like to run php artisan migrate now?', 'no')

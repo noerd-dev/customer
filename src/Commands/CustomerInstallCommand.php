@@ -1,17 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Noerd\Customer\Commands;
 
 use Illuminate\Console\Command;
 use Noerd\Traits\HasModuleInstallation;
 use Noerd\Traits\PublishesAuditMigration;
-use Noerd\Traits\RequiresNoerdInstallation;
 
 class CustomerInstallCommand extends Command
 {
     use HasModuleInstallation;
     use PublishesAuditMigration;
-    use RequiresNoerdInstallation;
 
     protected $signature = 'noerd:install-customer {--force : Overwrite existing files without asking}';
 
@@ -19,13 +19,7 @@ class CustomerInstallCommand extends Command
 
     public function handle(): int
     {
-        $result = $this->runModuleInstallation();
-
-        if ($result === 0) {
-            $this->publishAuditingMigrationIfNeeded();
-        }
-
-        return $result;
+        return $this->runModuleInstallation();
     }
 
     protected function getModuleName(): string
@@ -53,13 +47,17 @@ class CustomerInstallCommand extends Command
         return 'customers';
     }
 
-    protected function getSnippetTitle(): string
-    {
-        return 'Customer';
-    }
-
     protected function getSourceDir(): string
     {
         return dirname(__DIR__, 2) . '/app-configs/customer';
+    }
+
+    /**
+     * The model is auditable — the auditing migration is published before the
+     * migration prompt, on install and update.
+     */
+    protected function publishModuleExtras(bool $update): void
+    {
+        $this->publishAuditingMigrationIfNeeded();
     }
 }
