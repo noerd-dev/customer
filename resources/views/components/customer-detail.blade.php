@@ -1,5 +1,6 @@
 <?php
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Noerd\Traits\NoerdDetail;
 use Noerd\Customer\Models\Customer;
@@ -24,6 +25,31 @@ new class extends Component {
         }
 
         $this->setPreselect('customer_id', $this->modelId);
+    }
+
+    /**
+     * The address detail sets the customer's FIRST address as both defaults
+     * directly in the database. Adopt those ids for every default the form
+     * still holds empty — otherwise the next save of this (still open) form
+     * writes its stale null back over them. A default picked in the form wins.
+     */
+    #[On('detailStored-customer::customer-address-detail')]
+    public function addressStored(): void
+    {
+        if (! $this->modelId) {
+            return;
+        }
+
+        $customer = Customer::find($this->modelId);
+        if (! $customer) {
+            return;
+        }
+
+        foreach (['default_invoice_address_id', 'default_delivery_address_id'] as $key) {
+            if (empty($this->detailData[$key]) && $customer->{$key}) {
+                $this->detailData[$key] = $customer->{$key};
+            }
+        }
     }
 
     public function store(): void

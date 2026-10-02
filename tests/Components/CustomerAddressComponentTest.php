@@ -247,3 +247,52 @@ it('refreshes the default address options in the customer detail', function (): 
     expect($customer->default_invoice_address_id)->toBe($address->id);
     expect($customer->default_delivery_address_id)->toBe($address->id);
 });
+
+it('offers no addresses in the picker while the customer is not saved yet', function (): void {
+    $other = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+    CustomerAddress::factory()->create(['tenant_id' => $this->tenantId, 'customer_id' => $other->id]);
+
+    $rows = Livewire::test('customer::customer-addresses-list', ['listActionMethod' => 'selectAction'])
+        ->instance()->listData()['rows'];
+
+    expect($rows)->toHaveCount(0);
+});
+
+it('offers only the customer\'s own addresses in the picker', function (): void {
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+    CustomerAddress::factory()->create(['tenant_id' => $this->tenantId, 'customer_id' => $customer->id]);
+    $other = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+    CustomerAddress::factory()->create(['tenant_id' => $this->tenantId, 'customer_id' => $other->id]);
+
+    $rows = Livewire::test('customer::customer-addresses-list', ['id' => $customer->id, 'listActionMethod' => 'selectAction'])
+        ->instance()->listData()['rows'];
+
+    expect($rows)->toHaveCount(1);
+});
+
+it('keeps the delivery default the address detail set when the open customer form is saved', function (): void {
+    $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
+
+    $detail = Livewire::withUrlParams(['customerId' => $customer->id])
+        ->test('customer::customer-detail');
+
+    Livewire::test('customer::customer-address-detail')
+        ->call('customerSelected', $customer->id)
+        ->set('detailData.address_line_1', 'Haidengrün 1')
+        ->call('store')
+        ->assertHasNoErrors()
+        ->assertDispatched('detailStored-customer::customer-address-detail');
+
+    $address = CustomerAddress::withoutGlobalScopes()->where('customer_id', $customer->id)->sole();
+
+    // The reviewer only picks the invoice address in the still open form.
+    $detail
+        ->dispatch('detailStored-customer::customer-address-detail', modelId: $address->id, detail: 'customer::customer-address-detail')
+        ->set('detailData.default_invoice_address_id', $address->id)
+        ->call('store')
+        ->assertHasNoErrors();
+
+    $customer->refresh();
+    expect($customer->default_invoice_address_id)->toBe($address->id);
+    expect($customer->default_delivery_address_id)->toBe($address->id);
+});

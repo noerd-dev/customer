@@ -49,6 +49,14 @@ new class extends \Noerd\Livewire\RelationFieldComponent {}; ?>
                     </button>
                 </div>
             @endunless
+        @elseif (! $modelId)
+            {{-- An address always belongs to a saved customer: without one the picker has nothing to offer. --}}
+            <div
+                id="{{ $fieldName }}"
+                class="flex min-h-16 w-full items-center justify-center rounded-lg border border-dashed border-zinc-200 bg-zinc-50 px-3 py-2 text-center text-sm text-zinc-400"
+            >
+                {{ __('Save the customer first to add an address') }}
+            </div>
         @else
             <div
                 id="{{ $fieldName }}"
