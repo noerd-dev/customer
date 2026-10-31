@@ -120,7 +120,8 @@ it('save persists customer and address with both defaults in one call', function
     $customer->refresh();
     expect($customer->default_invoice_address_id)->not->toBeNull();
     expect($customer->default_delivery_address_id)->toBe($customer->default_invoice_address_id);
-    expect($customer->defaultInvoiceAddress->address_line_1)->toBe('Musterweg 1');
+    expect(CustomerAddress::query()->ofTenant($tenant->id)->find($customer->default_invoice_address_id)->address_line_1)
+        ->toBe('Musterweg 1');
 });
 
 it('save without address data creates no address', function (): void {

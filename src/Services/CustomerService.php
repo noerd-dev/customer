@@ -30,7 +30,8 @@ class CustomerService
 
         return DB::transaction(function () use ($tenantId, $attributes, $email, $customerId, $address): Customer {
             if ($customerId) {
-                $customer = Customer::findOrFail($customerId);
+                // The customer of the tenant this save is for — with or without a tenant context.
+                $customer = Customer::query()->ofTenant($tenantId)->findOrFail($customerId);
                 $attributes = $this->guardDefaultAddressIds($customer, $attributes);
                 $customer->update(array_merge($attributes, ['email' => $email, 'tenant_id' => $tenantId]));
             } elseif ($email) {
