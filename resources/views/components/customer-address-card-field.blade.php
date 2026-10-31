@@ -13,7 +13,7 @@ new class extends \Noerd\Livewire\RelationFieldComponent {}; ?>
                 id="{{ $fieldName }}"
                 class="min-h-16 w-full rounded-lg border border-zinc-200 border-b-zinc-300/80 bg-white px-3 py-2 pe-14 text-sm leading-5 text-zinc-700 shadow-xs @unless($readonly) cursor-pointer hover:border-zinc-300 @endunless"
                 @unless($readonly)
-                    @click="$modal('{{ $listComponent }}', {id: {{ $modelId ?: 'null' }}, context: '{{ $fieldName }}', listActionMethod: 'selectAction'})"
+                    @click="$modal('{{ $listComponent }}', {id: {{ $modelId ?: 'null' }}, context: '{{ $this->selectionContext() }}', listActionMethod: 'selectAction'})"
                 @endunless
             >
                 @if ($address->label)
@@ -62,7 +62,7 @@ new class extends \Noerd\Livewire\RelationFieldComponent {}; ?>
                 id="{{ $fieldName }}"
                 class="flex min-h-16 w-full items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-400 @unless($readonly) cursor-pointer hover:border-zinc-400 hover:text-zinc-500 @endunless"
                 @unless($readonly)
-                    @click="$modal('{{ $listComponent }}', {id: {{ $modelId ?: 'null' }}, context: '{{ $fieldName }}', listActionMethod: 'selectAction'})"
+                    @click="$modal('{{ $listComponent }}', {id: {{ $modelId ?: 'null' }}, context: '{{ $this->selectionContext() }}', listActionMethod: 'selectAction'})"
                 @endunless
             >
                 {{ __('Select address') }}
