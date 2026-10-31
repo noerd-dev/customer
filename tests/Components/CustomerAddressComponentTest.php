@@ -111,7 +111,7 @@ it('updates an existing address', function (): void {
 });
 
 it('registers the customerAddressRelation picker type', function (): void {
-    $definition = app(\Noerd\Services\RelationFieldRegistry::class)->resolve('customerAddressRelation');
+    $definition = app(\Noerd\Services\RelationFieldRegistry::class)->get('customerAddressRelation');
 
     expect($definition)->not->toBeNull();
     expect($definition->listComponent)->toBe('customer::customer-addresses-list');
@@ -171,13 +171,13 @@ it('makes the first address both defaults automatically', function (): void {
 });
 
 it('registers the customerAddressCardRelation type with its card renderer', function (): void {
-    $definition = app(\Noerd\Services\RelationFieldRegistry::class)->resolve('customerAddressCardRelation');
+    $definition = app(\Noerd\Services\RelationFieldRegistry::class)->get('customerAddressCardRelation');
 
     expect($definition)->not->toBeNull();
     expect($definition->listComponent)->toBe('customer::customer-addresses-list');
     expect($definition->fieldComponent)->toBe('customer::customer-address-card-field');
 
-    $fieldType = app(\Noerd\Services\FieldTypeRegistry::class)->resolve('customerAddressCardRelation');
+    $fieldType = app(\Noerd\Services\FieldTypeRegistry::class)->get('customerAddressCardRelation');
     expect($fieldType?->kind)->toBe('livewire');
     expect($fieldType?->target)->toBe('customer::customer-address-card-field');
 });

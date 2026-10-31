@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Noerd\Customer\Commands;
 
 use Illuminate\Console\Command;
-use Noerd\Traits\HasModuleInstallation;
-use Noerd\Traits\PublishesAuditMigration;
+use Noerd\Commands\Concerns\HasModuleInstallation;
+use Noerd\Commands\Concerns\PublishesAuditMigration;
 
 class CustomerInstallCommand extends Command
 {
