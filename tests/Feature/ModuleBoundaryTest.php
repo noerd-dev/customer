@@ -2,57 +2,16 @@
 
 declare(strict_types=1);
 
-/**
- * Architecture guard: the customer module must stay fully independent from the
- * party module. No composer requirement and no source reference may exist.
- */
 uses(Tests\TestCase::class);
 
-function zzCustomerBoundaryScan(array $needles): array
-{
-    $hits = [];
-    $root = dirname(__DIR__, 2);
+/*
+ | Architecture guard: every module the code uses is declared in composer.json,
+ | and nothing the module must never reference appears anywhere in it.
+ | Allowances (with their reason) and forbidden namespaces are declared in
+ | composer.json under extra.noerd.boundary — never in this file. Customer never
+ | meets the party module (see the module guideline).
+ */
 
-    foreach (['src'] as $dir) {
-        $path = $root . '/' . $dir;
-        if (! is_dir($path)) {
-            continue;
-        }
-
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-        );
-
-        foreach ($iterator as $file) {
-            if (! in_array($file->getExtension(), ['php', 'yml', 'json'], true)) {
-                continue;
-            }
-
-            $content = file_get_contents($file->getPathname());
-            foreach ($needles as $needle) {
-                if (str_contains($content, $needle)) {
-                    $hits[] = $file->getPathname() . ' contains ' . $needle;
-                }
-            }
-        }
-    }
-
-    return $hits;
-}
-
-it('does not require noerd/party in composer.json', function (): void {
-    $composer = json_decode(
-        file_get_contents(dirname(__DIR__, 2) . '/composer.json'),
-        true,
-    );
-
-    expect($composer['require'])->not->toHaveKey('noerd/party');
-});
-
-it('has no source references to the party module', function (): void {
-    expect(zzCustomerBoundaryScan(['Noerd\\Party\\']))->toBe([]);
-});
-
-it('declares every module dependency it uses', function (): void {
-    assertModuleDependenciesDeclared(dirname(__DIR__, 2));
+it('keeps its module boundary', function (): void {
+    assertModuleBoundary(dirname(__DIR__, 2));
 });

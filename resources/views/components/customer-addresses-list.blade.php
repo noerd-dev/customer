@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Noerd\Traits\NoerdList;
 use Noerd\Customer\Models\CustomerAddress;
+use Noerd\Traits\NoerdList;
 
 new class extends Component {
     use NoerdList;
@@ -26,19 +26,13 @@ new class extends Component {
         // foreign address is dropped on save anyway.
         $isPickerWithoutCustomer = $scopeCustomerId === null && $this->listActionMethod === 'selectAction';
 
-        $rows = $this->listQuery($this->listModel)
-            ->when($scopeCustomerId, fn (Builder $query) => $query->where('customer_id', $scopeCustomerId))
-            ->when($isPickerWithoutCustomer, fn (Builder $query) => $query->whereRaw('1 = 0'))
-            ->paginate($this->perPage);
+        $query = $this->listQuery($this->listModel)
+            ->when($scopeCustomerId, fn(Builder $query) => $query->where('customer_id', $scopeCustomerId))
+            ->when($isPickerWithoutCustomer, fn(Builder $query) => $query->whereRaw('1 = 0'));
+
+        $rows = $this->paginateList($query);
 
         return $this->buildList($rows);
-    }
-
-    public function rendering(): void
-    {
-        // Intentionally empty: the generic deep-link handler int-casts the id,
-        // which corrupts ULID primary keys ((int)'01J…' === 1). Records are
-        // deep-linked through their route modal instead.
     }
 }; ?>
 

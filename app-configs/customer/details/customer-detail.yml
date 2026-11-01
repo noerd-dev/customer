@@ -4,7 +4,7 @@ tabs:
   - number: 1
     label: Master Data
   - label: Addresses
-    component: customer-addresses-list
+    component: customer::customer-addresses-list
     arguments:
       customerId: $modelId
     requiresId: true

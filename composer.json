@@ -22,6 +22,13 @@
             "providers": [
                 "Noerd\\Customer\\Providers\\CustomerServiceProvider"
             ]
+        },
+        "noerd": {
+            "boundary": {
+                "forbidden": [
+                    "Noerd\\Party\\"
+                ]
+            }
         }
     },
     "minimum-stability": "stable"

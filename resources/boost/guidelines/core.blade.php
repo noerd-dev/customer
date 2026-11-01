@@ -11,8 +11,9 @@ this module.
 ### Customer vs. party — the boundary
 - `customer` and `party` must know NOTHING of each other: no `Noerd\Party\` reference in `src/`,
   no `noerd/party` composer requirement, no FK column in either direction, no sync code. An app
-  picks ONE of the two. Guarded by `tests/Feature/ModuleBoundaryTest.php` (source scan +
-  composer check + `assertModuleDependenciesDeclared()`)
+  picks ONE of the two. Guarded by `tests/Feature/ModuleBoundaryTest.php`
+  (`assertModuleBoundary()`: `Noerd\Party\` is listed under `extra.noerd.boundary.forbidden` in
+  `composer.json`, plus the dependency check)
 - Consumer apps link a customer to THEIR user through `customers.website_user_id` (plain id
   column, no FK — the website user table belongs to the consumer app):
   `Customer::forWebsiteUser($userId)` scope
@@ -46,12 +47,14 @@ this module.
 
 ### Structure
 - Livewire components (`resources/views/components/`, namespace `customer::`; the provider
-  registers the namespace AND `Livewire::addLocation`): `customers-list` (slim list, custom
-  `listData()` only eager-loads the default addresses), `customer-detail` (`$detailPrimary =
-  'customerId'`, `store()` via `CustomerService`), `customer-addresses-list` (narrowed by
-  `customerId`, or by the picker-supplied `id` when used as a relation-field picker; empty
-  `rendering()` on purpose), `customer-address-detail` (`$detailPrimary = 'customerAddressId'`,
-  reacts to `customerSelected`; the customer's FIRST address becomes both defaults),
+  extends `NoerdModuleServiceProvider`, so there are no bare component names — always
+  `customer::{name}`, also in a foreign YAML's `component:`): `customers-list` (slim list, the
+  default addresses declared in `$listWith`), `customer-detail` (`$detailPrimary =
+  'customerId'`, the audits in `$detailWith`, `store()` via `CustomerService`),
+  `customer-addresses-list` (narrowed by `customerId`, or by the picker-supplied `id` when used
+  as a relation-field picker), `customer-address-detail` (`$detailPrimary = 'customerAddressId'`,
+  the customer comes from the relation field or the session preselect, no `customerSelected`
+  handler; the customer's FIRST address becomes both defaults),
   `customer-address-card-field` (custom relation renderer extending
   `Noerd\Livewire\RelationFieldComponent`), `quick-menu/customer-select-component` (the
   tenant-scoped quick-menu selector, listens to `customerSelected` / `customerCleared`, persists
@@ -81,12 +84,14 @@ this module.
   RefreshDatabase::class)`). Run from the host: `php artisan test --compact
   app-modules/customer/tests`. `Noerd\Customer\Tests\` stays in the production `autoload` — a
   path-repository's `autoload-dev` is not loaded by the host
-- `tests/Traits/CreatesCustomerUser.php` provides `withCustomerModule()` (tenant + user +
-  `CUSTOMER` tenant app, selected app set)
+- The user fixture is the core's `createNoerdUserForApp('CUSTOMER')` /
+  `actingAsNoerdUserForApp('CUSTOMER')` (tenant + user + `CUSTOMER` tenant app, selected app set);
+  the module has no test trait of its own
 - Prove mechanics, never the current YAML configuration (see the `noerd-testing` skill)
 
 ### Reference implementations
-- `customers-list.blade.php` — the slim list (`$listModel` + `$detailRoute`)
+- `customers-list.blade.php` — the slim list (`$listModel` + `$detailRoute` + `$detailComponent`,
+  `$listWith`)
 - `customer-detail.blade.php` — the slim detail (`$detailModel` + `$detailPrimary`, custom
   `store()` delegating to a service and ending in `storeProcess()`)
 - `Customer::relationForms()` — relation forms via `DeclaresRelationForms` with
@@ -94,7 +99,6 @@ this module.
 - `customer-address-card-field.blade.php` — a custom relation-field renderer
   (`fieldComponent:` on a `RelationFieldDefinition`)
 - `CustomerInstallCommand` / `CustomerUpdateCommand` — the install/update command pair
-  (`HasModuleInstallation` + `RequiresNoerdInstallation`, slim update subclass calling
-  `runModuleUpdate()`)
+  (`HasModuleInstallation`, the update command is a subclass with signature and description only)
 - `tests/Feature/ModuleBoundaryTest.php` — the architecture guard pattern for module boundaries
 @endverbatim

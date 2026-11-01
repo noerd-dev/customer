@@ -1,8 +1,8 @@
 <?php
 
 use Livewire\Component;
-use Noerd\Traits\NoerdList;
 use Noerd\Customer\Models\Customer;
+use Noerd\Traits\NoerdList;
 
 new class extends Component {
     use NoerdList;
@@ -10,14 +10,9 @@ new class extends Component {
     public $listModel = Customer::class;
     public ?string $detailRoute = 'customer.detail';
 
-    public function listData(): array
-    {
-        $rows = $this->listQuery($this->listModel)
-            ->with(['defaultInvoiceAddress', 'defaultDeliveryAddress'])
-            ->paginate($this->perPage);
+    public $detailComponent = 'customer::customer-detail';
 
-        return $this->buildList($rows);
-    }
+    protected array $listWith = ['defaultInvoiceAddress', 'defaultDeliveryAddress'];
 };
 ?>
 

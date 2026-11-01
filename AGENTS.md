@@ -43,10 +43,10 @@ each other (no FK, no sync, no composer requirement; enforced by
 
 - Tests bind the host `Tests\TestCase` (MySQL, `RefreshDatabase`). From the host project:
   `php artisan test --compact app-modules/customer/tests`. Tests prove mechanics, never the
-  current YAML configuration; `tests/Traits/CreatesCustomerUser.php` sets up tenant, user and
-  the `CUSTOMER` tenant app.
+  current YAML configuration; the core's `createNoerdUserForApp('CUSTOMER')` sets up tenant, user
+  and the `CUSTOMER` tenant app.
 - `Noerd\Customer\Tests\` stays in the production `autoload` of `composer.json`: a
-  path-repository's `autoload-dev` is not loaded by the host, and host-root runs need the trait.
+  path-repository's `autoload-dev` is not loaded by the host.
 - Format from the host project root with an explicit path: `vendor/bin/pint app-modules/customer`
   (a plain `--dirty` run silently skips submodule files)
 - Keep the module independent of other optional modules — above all of `noerd/party`;

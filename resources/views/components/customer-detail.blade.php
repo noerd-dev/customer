@@ -2,9 +2,9 @@
 
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Noerd\Traits\NoerdDetail;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Services\CustomerService;
+use Noerd\Traits\NoerdDetail;
 
 new class extends Component {
     use NoerdDetail;
@@ -13,16 +13,12 @@ new class extends Component {
 
     public ?string $detailPrimary = 'customerId';
 
+    /** The change history of the Activity Log tab. */
+    protected array $detailWith = ['audits'];
+
     public function mount(): void
     {
         $this->initDetail();
-
-        if ($this->modelId) {
-            $customer = Customer::with('audits')->find($this->modelId);
-            if ($customer) {
-                $this->detailData = $customer->toArray();
-            }
-        }
 
         $this->setPreselect('customer_id', $this->modelId);
     }

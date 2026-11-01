@@ -6,15 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Models\CustomerAddress;
-use Noerd\Customer\Tests\Traits\CreatesCustomerUser;
 use Tests\TestCase;
 
 uses(TestCase::class);
-uses(CreatesCustomerUser::class);
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $this->user = $this->withCustomerModule();
+    $this->user = createNoerdUserForApp('CUSTOMER');
     $this->actingAs($this->user);
     $this->tenantId = $this->user->selected_tenant_id;
 });
@@ -31,7 +29,7 @@ it('creates an address for the selected customer', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.postal_code', '12345')
         ->set('detailData.locality', 'Berlin')
@@ -50,7 +48,7 @@ it('stores an empty country selection as null', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.country_code', '')
         ->call('store')
@@ -63,7 +61,7 @@ it('normalizes invalid country codes to null and valid ones to uppercase', funct
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.country_code', 'Deutschland')
         ->call('store')
@@ -85,7 +83,7 @@ it('stores postal codes longer than 16 characters', function (): void {
     $longPostalCode = str_repeat('1234567890', 3);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.postal_code', $longPostalCode)
         ->call('store')
@@ -149,7 +147,7 @@ it('makes the first address both defaults automatically', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Erste Straße 1')
         ->call('store')
         ->assertHasNoErrors();
@@ -160,7 +158,7 @@ it('makes the first address both defaults automatically', function (): void {
     expect($customer->default_delivery_address_id)->toBe($first->id);
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Zweite Straße 2')
         ->call('store')
         ->assertHasNoErrors();
@@ -277,7 +275,7 @@ it('keeps the delivery default the address detail set when the open customer for
         ->test('customer::customer-detail');
 
     Livewire::test('customer::customer-address-detail')
-        ->call('customerSelected', $customer->id)
+        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Haidengrün 1')
         ->call('store')
         ->assertHasNoErrors()

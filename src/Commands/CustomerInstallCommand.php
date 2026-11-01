@@ -13,14 +13,9 @@ class CustomerInstallCommand extends Command
     use HasModuleInstallation;
     use PublishesAuditMigration;
 
-    protected $signature = 'noerd:install-customer {--force : Overwrite existing files without asking}';
+    protected $signature = 'noerd:install-customer';
 
     protected $description = 'Install customer module content and navigation';
-
-    public function handle(): int
-    {
-        return $this->runModuleInstallation();
-    }
 
     protected function getModuleName(): string
     {
@@ -30,11 +25,6 @@ class CustomerInstallCommand extends Command
     protected function getModuleKey(): string
     {
         return 'customer';
-    }
-
-    protected function getDefaultAppTitle(): string
-    {
-        return 'Customer';
     }
 
     protected function getAppIcon(): string

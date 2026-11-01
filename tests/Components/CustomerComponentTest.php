@@ -5,20 +5,18 @@ declare(strict_types=1);
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Noerd\Customer\Models\Customer;
-use Noerd\Customer\Tests\Traits\CreatesCustomerUser;
 use Noerd\Helpers\TenantHelper;
 use OwenIt\Auditing\AuditableObserver;
 use Tests\TestCase;
 
 uses(TestCase::class);
-uses(CreatesCustomerUser::class);
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     config(['audit.console' => true]);
     Customer::observe(new AuditableObserver());
 
-    $this->user = $this->withCustomerModule();
+    $this->user = createNoerdUserForApp('CUSTOMER');
     $this->actingAs($this->user);
     $this->tenantId = $this->user->selected_tenant_id;
 });
@@ -158,7 +156,7 @@ describe('list', function (): void {
 
         expect(Livewire::test('customer::customers-list')->instance()->listData()['rows'])->toHaveCount(3);
 
-        $user2 = $this->withCustomerModule();
+        $user2 = createNoerdUserForApp('CUSTOMER');
         TenantHelper::clearCache();
         $tenant2 = $user2->tenants->first()->id;
         Customer::factory()->count(2)->create(['tenant_id' => $tenant2]);

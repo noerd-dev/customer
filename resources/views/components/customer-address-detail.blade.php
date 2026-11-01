@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Support\Arr;
-use Livewire\Attributes\On;
 use Livewire\Component;
-use Noerd\Traits\NoerdDetail;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Models\CustomerAddress;
+use Noerd\Traits\NoerdDetail;
 
 new class extends Component {
     use NoerdDetail;
@@ -18,16 +17,6 @@ new class extends Component {
     {
         $this->initDetail();
         $this->preselect('customer_id');
-    }
-
-    #[On('customerSelected')]
-    public function customerSelected($customerId): void
-    {
-        $customer = Customer::find($customerId);
-        if ($customer) {
-            $this->detailData['customer_id'] = $customer->id;
-            $this->detailData['tenant_id'] = $customer->tenant_id;
-        }
     }
 
     public function store(): void
@@ -50,10 +39,10 @@ new class extends Component {
             'house_number',
         ]);
         $attributes = array_map(
-            fn (mixed $value): mixed => is_string($value) && trim($value) === '' ? null : $value,
+            fn(mixed $value): mixed => is_string($value) && mb_trim($value) === '' ? null : $value,
             $attributes,
         );
-        $attributes['address_line_1'] = trim((string) ($this->detailData['address_line_1'] ?? ''));
+        $attributes['address_line_1'] = mb_trim((string) ($this->detailData['address_line_1'] ?? ''));
         $attributes['country_code'] = \Noerd\Customer\Services\CustomerAddressService::normalizeCountryCode($this->detailData['country_code'] ?? null);
 
         $address = CustomerAddress::updateOrCreate(

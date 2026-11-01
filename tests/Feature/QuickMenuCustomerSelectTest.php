@@ -6,13 +6,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Noerd\Customer\Models\Customer;
 use Noerd\Customer\Support\UserSelectedCustomer;
-use Noerd\Customer\Tests\Traits\CreatesCustomerUser;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class, CreatesCustomerUser::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('applies the selected customer in the quick-menu customer selector', function (): void {
-    $user = $this->withCustomerModule();
+    $user = createNoerdUserForApp('CUSTOMER');
     $this->actingAs($user);
 
     $customer = Customer::factory()->create([
@@ -30,7 +29,7 @@ it('applies the selected customer in the quick-menu customer selector', function
 });
 
 it('clears the selected customer in the quick-menu customer selector', function (): void {
-    $user = $this->withCustomerModule();
+    $user = createNoerdUserForApp('CUSTOMER');
     $this->actingAs($user);
 
     $customer = Customer::factory()->create([
