@@ -2,7 +2,7 @@
   name: customer
   hidden: true
   route: customers
-  block_menus:
+  blockMenus:
     - title: Customers
       navigations:
         - title: Customers
