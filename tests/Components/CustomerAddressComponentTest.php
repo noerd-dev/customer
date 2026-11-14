@@ -17,6 +17,15 @@ beforeEach(function (): void {
     $this->tenantId = $this->user->selected_tenant_id;
 });
 
+/**
+ * The address form takes its customer from the session preselect the customer
+ * screens set (preselect('customer_id')) — the client cannot hand it over.
+ */
+function zzPreselectAddressCustomer(Customer $customer): void
+{
+    session(['listFilters' => ['customer_id' => $customer->id]]);
+}
+
 it('validates the data', function (): void {
     $component = Livewire::test('customer::customer-address-detail')
         ->set('detailData', [])
@@ -28,8 +37,9 @@ it('validates the data', function (): void {
 it('creates an address for the selected customer', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.postal_code', '12345')
         ->set('detailData.locality', 'Berlin')
@@ -47,8 +57,9 @@ it('creates an address for the selected customer', function (): void {
 it('stores an empty country selection as null', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.country_code', '')
         ->call('store')
@@ -60,8 +71,9 @@ it('stores an empty country selection as null', function (): void {
 it('normalizes invalid country codes to null and valid ones to uppercase', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.country_code', 'Deutschland')
         ->call('store')
@@ -82,8 +94,9 @@ it('stores postal codes longer than 16 characters', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
     $longPostalCode = str_repeat('1234567890', 3);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Musterweg 1')
         ->set('detailData.postal_code', $longPostalCode)
         ->call('store')
@@ -146,8 +159,9 @@ it('scopes the picker list by the host id supplied by the relation field', funct
 it('makes the first address both defaults automatically', function (): void {
     $customer = Customer::factory()->create(['tenant_id' => $this->tenantId]);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Erste Straße 1')
         ->call('store')
         ->assertHasNoErrors();
@@ -157,8 +171,9 @@ it('makes the first address both defaults automatically', function (): void {
     expect($first?->address_line_1)->toBe('Erste Straße 1');
     expect($customer->default_delivery_address_id)->toBe($first->id);
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Zweite Straße 2')
         ->call('store')
         ->assertHasNoErrors();
@@ -274,8 +289,9 @@ it('keeps the delivery default the address detail set when the open customer for
     $detail = Livewire::withUrlParams(['customerId' => $customer->id])
         ->test('customer::customer-detail');
 
+    zzPreselectAddressCustomer($customer);
+
     Livewire::test('customer::customer-address-detail')
-        ->set('detailData.customer_id', $customer->id)
         ->set('detailData.address_line_1', 'Haidengrün 1')
         ->call('store')
         ->assertHasNoErrors()

@@ -79,7 +79,7 @@ describe('detail', function (): void {
         Livewire::withUrlParams(['customerId' => $model->id])
             ->test('customer::customer-detail')
             ->assertSet('modelId', $model->id)
-            ->call('closeModalProcess', source: 'customer::customers-list')
+            ->call('closeModal')
             ->assertDispatched('closeTopModal')
             ->assertHasNoErrors();
     });

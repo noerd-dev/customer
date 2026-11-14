@@ -4,7 +4,7 @@ tabs:
   - number: 1
     label: Master Data
   - label: Addresses
-    component: customer::customer-addresses-list
+    modalComponent: customer::customer-addresses-list
     arguments:
       customerId: $modelId
     requiresId: true
@@ -13,7 +13,7 @@ tabs:
     requiresId: true
 actions:
   - label: New Address
-    route: customer.address.detail
+    modalRoute: customer.address.detail
     heroicon: plus
 fields:
   - name: detailData.name

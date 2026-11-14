@@ -4,7 +4,7 @@ defaultSort:
 model: Noerd\Customer\Models\CustomerAddress
 actions:
   - label: New Address
-    route: customer.address.detail
+    modalRoute: customer.address.detail
 disableSearch: false
 columns:
   - field: label
